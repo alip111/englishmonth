@@ -3,103 +3,174 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>English Month Launch Puzzle</title>
+  <title>English Month Puzzle</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-    #puzzle { display: none; margin-top: 20px; }
-    #slots, #letters {
-      display: flex; flex-wrap: wrap; justify-content: center;
-      margin: 10px 0;
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      text-align: center;
+      padding: 30px;
     }
-    .slot, .tile {
-      width: 40px; height: 40px; margin: 4px;
-      line-height: 40px; text-transform: uppercase;
-      font-size: 18px; text-align: center;
+    .container {
+      width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    #video-box {
+      width: 640px;
+      height: 360px;
+      margin: 0 auto;
+      position: relative;
+      background: #000;
+    }
+    #videoA, #youtubeVideo {
+      width: 100%;
+      height: 100%;
+    }
+    #puzzle {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #fefefe;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      padding: 20px;
+    }
+    h2 {
+      margin-bottom: 10px;
+    }
+    #slots {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
     }
     .slot {
-      border: 2px solid #333;
+      width: 40px;
+      height: 40px;
+      margin: 3px;
+      border: 2px solid #555;
+      font-size: 22px;
+      line-height: 40px;
+      text-align: center;
+      text-transform: uppercase;
+      background: #e8e8e8;
+    }
+    #letters {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
     }
     .tile {
-      background: #f0f0f0; border: 1px solid #888;
-      cursor: pointer; user-select: none;
+      width: 40px;
+      height: 40px;
+      margin: 3px;
+      background: #d2ebf9;
+      border: 1px solid #0077cc;
+      font-size: 22px;
+      line-height: 40px;
+      cursor: pointer;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .tile.used {
+      background: #ccc;
+      color: #999;
+      pointer-events: none;
     }
     button {
-      margin: 5px; padding: 8px 16px;
+      padding: 6px 14px;
+      margin: 5px;
       font-size: 16px;
+      border: none;
+      border-radius: 6px;
+      background: #0077cc;
+      color: #fff;
+      cursor: pointer;
     }
-    #message { font-weight: bold; margin-top: 10px; }
-    #videoB-container { display: none; margin-top: 20px; }
-    iframe { width: 640px; height: 360px; }
+    #message {
+      font-weight: bold;
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body>
+  <div class="container">
+    <h1>Welcome to English Month!</h1>
+    <div id="video-box">
+      <!-- Video A -->
+      <video id="videoA" autoplay controls>
+        <source src="videoA.mp4" type="video/mp4">
+        Your browser does not support the video tag.
+      </video>
 
-  <!-- Opening Video A from GitHub -->
-  <video id="videoA" width="640" controls autoplay>
-    <source src="videoA.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
+      <!-- Puzzle -->
+      <div id="puzzle">
+        <h2>Rearrange the letters</h2>
+        <div id="slots"></div>
+        <div id="letters"></div>
+        <div>
+          <button id="clearBtn">Clear</button>
+          <button id="checkBtn">Check</button>
+        </div>
+        <p id="message"></p>
+      </div>
 
-  <!-- Puzzle Section -->
-  <div id="puzzle">
-    <h2>Rearrange the letters to form "ENGLISH MONTHS"</h2>
-    <div id="slots"></div>
-    <div id="letters"></div>
-    <div>
-      <button id="clearBtn">Clear</button>
-      <button id="checkBtn">Check</button>
+      <!-- YouTube Video B -->
+      <iframe id="youtubeVideo" style="display: none;" 
+              src=""
+              frameborder="0"
+              allow="autoplay; encrypted-media"
+              allowfullscreen>
+      </iframe>
     </div>
-    <p id="message"></p>
-  </div>
-
-  <!-- YouTube Video B Embed -->
-  <div id="videoB-container">
-    <h2>Thank you and enjoy the video!</h2>
-    <iframe id="youtubeVideo" 
-      src="" 
-      frameborder="0" 
-      allow="autoplay; encrypted-media" 
-      allowfullscreen>
-    </iframe>
   </div>
 
   <script>
-    const target = 'ENGLISHMONTHS';
-    const letters = target.split('');
+    const targetWord = 'ENGLISHMONTHS';
+    const displayLayout = 'ENGLISH MONTHS';
+    const letters = targetWord.split('');
     let current = [];
 
     const videoA = document.getElementById('videoA');
-    const puzzleEl = document.getElementById('puzzle');
-    const videoBContainer = document.getElementById('videoB-container');
-    const youtubeVideo = document.getElementById('youtubeVideo');
-    const slotsContainer = document.getElementById('slots');
+    const puzzle = document.getElementById('puzzle');
+    const slots = document.getElementById('slots');
     const lettersContainer = document.getElementById('letters');
+    const youtubeVideo = document.getElementById('youtubeVideo');
     const message = document.getElementById('message');
 
+    // Create slots: ENGLISH (7) + space + MONTHS (6)
     function createSlots() {
-      slotsContainer.innerHTML = '';
-      for (let i = 0; i < letters.length; i++) {
+      slots.innerHTML = '';
+      for (let char of displayLayout) {
         const slot = document.createElement('div');
-        slot.classList.add('slot');
-        slotsContainer.appendChild(slot);
+        slot.className = 'slot';
+        slot.textContent = (char === ' ') ? '' : '';
+        if (char === ' ') slot.style.border = 'none';
+        slots.appendChild(slot);
       }
     }
 
-    function shuffle(arr) {
-      return arr
-        .map(val => ({ val, sort: Math.random() }))
-        .sort((a, b) => a.sort - b.sort)
-        .map(({ val }) => val);
+    function shuffle(array) {
+      return array.map(val => ({ val, sort: Math.random() }))
+                  .sort((a, b) => a.sort - b.sort)
+                  .map(({ val }) => val);
     }
 
     function createTiles() {
       lettersContainer.innerHTML = '';
       const shuffled = shuffle(letters);
-      shuffled.forEach((ltr, idx) => {
+      shuffled.forEach((ltr, i) => {
         const tile = document.createElement('div');
-        tile.classList.add('tile');
+        tile.className = 'tile';
         tile.textContent = ltr;
-        tile.addEventListener('click', () => selectLetter(idx));
+        tile.addEventListener('click', () => selectLetter(i));
         lettersContainer.appendChild(tile);
       });
     }
@@ -109,39 +180,52 @@
         const tile = lettersContainer.children[index];
         if (!tile.classList.contains('used')) {
           tile.classList.add('used');
-          slotsContainer.children[current.length].textContent = tile.textContent;
-          current.push({ char: tile.textContent, idx: index });
+          let filled = 0;
+          for (let i = 0; i < displayLayout.length; i++) {
+            if (displayLayout[i] !== ' ' && slots.children[i].textContent === '') {
+              slots.children[i].textContent = tile.textContent;
+              current.push({ char: tile.textContent, idx: index });
+              break;
+            }
+          }
         }
       }
     }
 
-    document.getElementById('clearBtn').addEventListener('click', () => {
+    function clearPuzzle() {
       current = [];
-      Array.from(slotsContainer.children).forEach(s => s.textContent = '');
+      Array.from(slots.children).forEach((s, i) => {
+        if (displayLayout[i] !== ' ') s.textContent = '';
+      });
       Array.from(lettersContainer.children).forEach(t => t.classList.remove('used'));
       message.textContent = '';
-    });
+    }
 
-    document.getElementById('checkBtn').addEventListener('click', () => {
-      if (current.map(c => c.char).join('') === target) {
-        message.textContent = 'Correct! Playing ending video...';
+    function checkAnswer() {
+      const answer = Array.from(slots.children)
+        .map((s, i) => displayLayout[i] === ' ' ? '' : s.textContent)
+        .join('');
+      if (answer === targetWord) {
+        message.textContent = 'Correct! Playing final video...';
         setTimeout(() => {
-          puzzleEl.style.display = 'none';
-          videoBContainer.style.display = 'block';
+          puzzle.style.display = 'none';
           youtubeVideo.src = "https://www.youtube.com/embed/XFfM_X-GOXA?autoplay=1";
+          youtubeVideo.style.display = 'block';
         }, 1000);
       } else {
         message.textContent = 'Try again!';
       }
-    });
+    }
+
+    document.getElementById('clearBtn').addEventListener('click', clearPuzzle);
+    document.getElementById('checkBtn').addEventListener('click', checkAnswer);
 
     videoA.addEventListener('ended', () => {
-      puzzleEl.style.display = 'block';
+      videoA.style.display = 'none';
+      puzzle.style.display = 'flex';
       createSlots();
       createTiles();
     });
   </script>
-
 </body>
 </html>
-
